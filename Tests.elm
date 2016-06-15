@@ -13,5 +13,5 @@ all =
         ,test "Reverse Head" (assertEqual Head (reverse Tail))
         ,test "Reverse Tail" (assertEqual Tail (reverse Head))
         ,test "Put Piece 1" (assertEqual (Ok (Just Head)) (put Nothing Head))
-        ,test "Put Piece 1" (assertEqual (Err "not empty square...") (put (Just Tail) Head))
+        ,test "Put Piece 2" (assertEqual Nothing (Result.withDefault Nothing (put (Just Tail) Head)))
         ]
