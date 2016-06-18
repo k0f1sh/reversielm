@@ -31,10 +31,10 @@ makePos n m =
 makeBoard : Int -> Int -> Board
 makeBoard w h =
     let
-        squares = 
+        poss = 
             combinationOf makePos [1..w] [1..h]
     in
-        combinationOf (\s -> \p -> {piece=p, pos=s}) squares (List.repeat (List.length squares) None)
+        combinationOf (\pos -> \piece -> {piece=piece, pos=pos}) poss (List.repeat (List.length poss) None)
       
 -- オセロを反転
 reverse : Piece -> Piece
