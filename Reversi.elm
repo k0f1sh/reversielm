@@ -21,7 +21,7 @@ board = combinationOf (\a -> \b -> {piece = a, pos = b}) [1..w] [1..h]
 -- くみあわせ
 combinationOf : (a -> b -> c) -> List a -> List b -> List c
 combinationOf f a b =
-    List.concat (List.map (\n -> List.map (\m -> (f n m)) b) a)
+    concat (map (\n -> map (\m -> (f n m)) b) a)
 
 -- 盤面生成
 makePos : Int -> Int -> Pos
@@ -34,7 +34,7 @@ makeBoard w h =
         poss = 
             combinationOf makePos [1..w] [1..h]
     in
-        combinationOf (\pos -> \piece -> {piece=piece, pos=pos}) poss (List.repeat (List.length poss) None)
+        combinationOf (\pos -> \piece -> {piece=piece, pos=pos}) poss (repeat (length poss) None)
       
 -- オセロを反転
 reverse : Piece -> Piece
