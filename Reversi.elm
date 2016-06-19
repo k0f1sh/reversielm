@@ -5,13 +5,23 @@ import List exposing (..)
 -- 駒
 type Piece = Black | White | None
 
-type alias Pos = (Int, Int) -- 座標
+-- 座標
+type alias Pos = (Int, Int) 
+
 -- 1マス
 type alias Square = 
     { piece: Piece
     , pos: Pos
     }
-type alias Board = List Square -- 盤
+
+-- WxH
+type alias BoardSize = (Int, Int)
+
+-- 盤
+type alias Board =
+    { board: List Square
+    , board_size: BoardSize
+    }
 
 -- 盤面
 w = 8
@@ -40,18 +50,35 @@ makeBoard w h =
         poss = 
             combinationOf makePos [1..w] [1..h]
     in
-        map2 makeSquare (repeat (length poss) None) poss
+        {board = map2 makeSquare (repeat (length poss) None) poss
+        ,board_size = (w, h)}
 
 setPieces : List Square -> Board -> Board
 setPieces l b =
-    map (\s ->
-             let
-                 filtered = (filter (\t -> s.pos == t.pos) l)
-             in
-                 (Maybe.withDefault s (head filtered))
-        )
-        b
-      
+    let
+        board = map (\s -> (filter (\t -> s.pos == t.pos) l) |> head |> Maybe.withDefault s) b.board
+    in
+        {board = board
+        ,board_size = b.board_size}
+
+-- -- 判定関連
+isOutOfBoard : Board -> Pos -> Bool
+isOutOfBoard b pos = 
+    let
+        out_w = fst b.board_size + 1
+        out_h = snd b.board_size + 1
+    in
+    case pos of
+        (0, _) -> True
+        (_, 0) -> True
+        (w, h) ->
+            if (w >= out_w) then
+                True
+            else if (h >= out_h) then
+                True
+            else
+                False
+
 -- オセロを反転
 reverse : Piece -> Piece
 reverse p = 
