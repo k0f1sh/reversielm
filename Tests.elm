@@ -36,4 +36,9 @@ all =
         ,test "isOutOfBoard 1" (assertEqual False (isOutOfBoard (makeBoard 8 8) (1,1)))
         ,test "isOutOfBoard 2" (assertEqual True (isOutOfBoard (makeBoard 80 80) (0,0)))
         ,test "isOutOfBoard 2" (assertEqual True (isOutOfBoard (makeBoard 80 80) (999,999)))
+        ,test "plusPos" (assertEqual (0,0) (plusPos (-2, 10) (2, -10)))
+        ,test "getSquare" (assertEqual White (.piece (Maybe.withDefault {piece = None, pos=(99,99)}
+                                                          (getSquare (setPieces [{piece = White, pos=(4,4)}] (makeBoard 8 8)) (4,4)))))
+        ,test "nextSquare" (assertEqual White (.piece (Maybe.withDefault {piece = None, pos=(99,99)}
+                                                          (nextSquare (setPieces [{piece = White, pos=(4,4)}] (makeBoard 8 8)) (-1, 0) (5,4)))))
         ]

@@ -79,6 +79,34 @@ isOutOfBoard b pos =
             else
                 False
 
+plusPos : Pos -> Pos -> Pos
+plusPos pos1 pos2 =
+    ((fst pos1 + fst pos2), (snd pos1 + snd pos2))
+
+getSquareFromList : List Square -> Pos -> Maybe Square
+getSquareFromList b p =
+    case b of
+        [] -> Maybe.Nothing
+        x::xs -> if x.pos == p then
+                     Maybe.Just x
+                 else
+                     getSquareFromList xs p
+
+getSquare : Board -> Pos -> Maybe Square
+getSquare b p =
+    getSquareFromList b.board p
+        
+
+nextSquare : Board -> Pos -> Pos -> Maybe Square
+nextSquare b direction current_pos =
+    let
+        new_pos = (plusPos direction current_pos)
+    in
+        if (isOutOfBoard b new_pos) then
+            Maybe.Nothing
+        else
+            getSquare b new_pos
+
 -- オセロを反転
 reverse : Piece -> Piece
 reverse p = 
