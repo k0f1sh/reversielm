@@ -27,6 +27,12 @@ combinationOf f a b =
 makePos : Int -> Int -> Pos
 makePos n m =
     (n, m)
+
+makeSquare: Piece -> Pos -> Square
+makeSquare pi po =
+    { piece = pi
+    , pos = po
+    }
     
 makeBoard : Int -> Int -> Board
 makeBoard w h =
@@ -34,7 +40,17 @@ makeBoard w h =
         poss = 
             combinationOf makePos [1..w] [1..h]
     in
-        combinationOf (\pos -> \piece -> {piece=piece, pos=pos}) poss (repeat (length poss) None)
+        map2 makeSquare (repeat (length poss) None) poss
+
+setPieces : List Square -> Board -> Board
+setPieces l b =
+    map (\s ->
+             let
+                 filtered = (filter (\t -> s.pos == t.pos) l)
+             in
+                 (Maybe.withDefault s (head filtered))
+        )
+        b
       
 -- オセロを反転
 reverse : Piece -> Piece
