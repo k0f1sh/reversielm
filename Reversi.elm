@@ -6,7 +6,7 @@ import List exposing (..)
 type Piece = Black | White | None
 
 -- 座標
-type alias Pos = (Int, Int) 
+type alias Pos = (Int, Int)
 
 -- 1マス
 type alias Square = 
@@ -27,6 +27,8 @@ type alias Board =
 w = 8
 h = 8
 board = combinationOf (\a -> \b -> {piece = a, pos = b}) [1..w] [1..h]
+directions = combinationOf (\d1 -> \d2 -> (d1, d2)) [-1, 0, 1] [-1, 0, 1]
+             |> filter (\d -> (not (d == (0, 0))))
 
 -- くみあわせ
 combinationOf : (a -> b -> c) -> List a -> List b -> List c
@@ -63,21 +65,9 @@ setPieces l b =
 
 -- -- 判定関連
 isOutOfBoard : Board -> Pos -> Bool
-isOutOfBoard b pos = 
-    let
-        out_w = fst b.board_size + 1
-        out_h = snd b.board_size + 1
-    in
-    case pos of
-        (0, _) -> True
-        (_, 0) -> True
-        (w, h) ->
-            if (w >= out_w) then
-                True
-            else if (h >= out_h) then
-                True
-            else
-                False
+isOutOfBoard board pos =
+  let bound f = f pos < 1 || f board.board_size < f pos
+  in bound fst || bound snd
 
 plusPos : Pos -> Pos -> Pos
 plusPos pos1 pos2 =
@@ -96,7 +86,6 @@ getSquare : Board -> Pos -> Maybe Square
 getSquare b p =
     getSquareFromList b.board p
         
-
 nextSquare : Board -> Pos -> Pos -> Maybe Square
 nextSquare b direction current_pos =
     let
