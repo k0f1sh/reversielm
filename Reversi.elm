@@ -19,7 +19,7 @@ type alias BoardSize = (Int, Int)
 
 -- 盤
 type alias Board =
-    { board: List Square
+    { squares: List Square
     , board_size: BoardSize
     }
 
@@ -52,15 +52,15 @@ makeBoard w h =
         poss = 
             combinationOf makePos [1..w] [1..h]
     in
-        {board = map2 makeSquare (repeat (length poss) None) poss
+        {squares = map2 makeSquare (repeat (length poss) None) poss
         ,board_size = (w, h)}
 
 setPieces : List Square -> Board -> Board
 setPieces l b =
     let
-        board = map (\s -> (filter (\t -> s.pos == t.pos) l) |> head |> Maybe.withDefault s) b.board
+        squares = map (\s -> (filter (\t -> s.pos == t.pos) l) |> head |> Maybe.withDefault s) b.squares
     in
-        {board = board
+        {squares = squares
         ,board_size = b.board_size}
 
 -- -- 判定関連
@@ -74,8 +74,8 @@ plusPos pos1 pos2 =
     ((fst pos1 + fst pos2), (snd pos1 + snd pos2))
 
 getSquareFromList : List Square -> Pos -> Maybe Square
-getSquareFromList b p =
-    case b of
+getSquareFromList s p =
+    case s of
         [] -> Maybe.Nothing
         x::xs -> if x.pos == p then
                      Maybe.Just x
@@ -84,7 +84,7 @@ getSquareFromList b p =
 
 getSquare : Board -> Pos -> Maybe Square
 getSquare b p =
-    getSquareFromList b.board p
+    getSquareFromList b.squares p
         
 nextSquare : Board -> Pos -> Pos -> Maybe Square
 nextSquare b direction current_pos =
@@ -96,6 +96,43 @@ nextSquare b direction current_pos =
         else
             getSquare b new_pos
 
+multiplyPos : Pos -> Int -> Pos
+multiplyPos p n =
+    (((fst p) * n), ((snd p) * n))
+
+takeWhile : (a -> Bool) -> List a -> List a
+takeWhile f l =
+    case l of
+        [] -> []
+        x::xs ->
+            if f x then
+                x :: takeWhile f xs
+            else
+                []
+
+-- currnet_posにpieceを置いた場合のdirection方向の返せるマスをかえす
+reversibleSquares : Piece -> Pos -> Pos -> Board -> List Square
+reversibleSquares piece direction current_pos board =
+    let
+        max_length = (max (fst board.board_size) (snd board.board_size))
+        direction_squares = [1..max_length]
+                          |> map (\n -> multiplyPos direction n)
+                          |> map (\p -> plusPos current_pos p)
+                          |> filterMap (\p -> getSquare board p)
+        takeReversibles l result =
+            case l of
+                [] -> result
+                x::xs ->
+                    if x.piece == None then
+                        []
+                    else
+                        if x.piece == reverse piece then
+                            takeReversibles xs (x::result)
+                        else
+                            result
+    in
+        takeReversibles direction_squares []
+
 -- オセロを反転
 reverse : Piece -> Piece
 reverse p = 
@@ -103,4 +140,3 @@ reverse p =
         Black -> White
         White -> Black
         None -> None
-

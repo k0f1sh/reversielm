@@ -17,15 +17,15 @@ all =
         ,test "directions" (assertEqual 8 (combinationOf (\d1 -> \d2 -> (d1, d2)) [-1, 0, 1] [-1, 0, 1]
                            |> List.filter (\d -> (not (d == (0, 0))))
                            |> List.length))
-        ,test "makeBoard 1" (assertEqual 64 (List.length ((makeBoard 8 8) |> .board)))
-        ,test "makeBoard 2" (assertEqual {piece=None, pos=(1,1)} (Maybe.withDefault {piece=None, pos=(0,0)} (List.head ((makeBoard 8 8) |> .board))))
+        ,test "makeBoard 1" (assertEqual 64 (List.length ((makeBoard 8 8) |> .squares)))
+        ,test "makeBoard 2" (assertEqual {piece=None, pos=(1,1)} (Maybe.withDefault {piece=None, pos=(0,0)} (List.head ((makeBoard 8 8) |> .squares))))
         ,test "setPieces 1" (assertEqual 64 ((makeBoard 8 8)
                                           |> setPieces [
                                                 {piece = White, pos=(4,4)}
                                                ,{piece = Black, pos=(4,5)}
                                                ,{piece = White, pos=(5,4)}
                                                ,{piece = Black, pos=(5,5)}]
-                                          |> .board
+                                          |> .squares
                                           |> List.length))
         ,test "setPieces 2" (assertEqual 2 ((makeBoard 8 8)
                                           |> setPieces [
@@ -33,7 +33,7 @@ all =
                                                ,{piece = Black, pos=(4,5)}
                                                ,{piece = White, pos=(5,4)}
                                                ,{piece = Black, pos=(5,5)}]
-                                          |> .board
+                                          |> .squares
                                           |> List.filter (\s -> White == s.piece)
                                           |> List.length))
         ,test "isOutOfBoard 1" (assertEqual False (isOutOfBoard (makeBoard 8 8) (1,1)))
@@ -45,4 +45,25 @@ all =
                                                           (getSquare (setPieces [{piece = White, pos=(4,4)}] (makeBoard 8 8)) (4,4)))))
         ,test "nextSquare" (assertEqual White (.piece (Maybe.withDefault {piece = None, pos=(99,99)}
                                                           (nextSquare (setPieces [{piece = White, pos=(4,4)}] (makeBoard 8 8)) (-1, 0) (5,4)))))
+        ,test "takeWhile" (assertEqual [1,1,1] (takeWhile (\n -> n == 1) [1,1,1,3,4]))
+        ,test "reversibleSquares 1" (assertEqual 3 ((makeBoard 8 8)
+                                                   |> setPieces [
+                                                         {piece = White, pos=(2,4)}
+                                                        ,{piece = White, pos=(3,4)}
+                                                        ,{piece = White, pos=(4,4)}
+                                                        ,{piece = Black, pos=(5,4)}
+                                                        ,{piece = Black, pos=(4,5)}
+                                                        ,{piece = Black, pos=(5,5)}]
+                                                   |> reversibleSquares Black (1, 0) (1, 4)
+                                                   |> List.length))
+        ,test "reversibleSquares 2" (assertEqual 0 ((makeBoard 8 8)
+                                                   |> setPieces [
+                                                         {piece = White, pos=(2,4)}
+                                                        ,{piece = White, pos=(3,4)}
+                                                        ,{piece = White, pos=(4,4)}]
+                                                   |> reversibleSquares White (1, 0) (1, 4)
+                                                   |> List.length))
+        ,test "reversibleSquares 3" (assertEqual 0 ((makeBoard 8 8)
+                                                   |> reversibleSquares None (1, 0) (1, 4)
+                                                   |> List.length))
         ]
