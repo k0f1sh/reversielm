@@ -19,20 +19,18 @@ all =
                            |> List.length))
         ,test "makeBoard 1" (assertEqual 64 (List.length ((makeBoard 8 8) |> .squares)))
         ,test "makeBoard 2" (assertEqual {piece=None, pos=(1,1)} (Maybe.withDefault {piece=None, pos=(0,0)} (List.head ((makeBoard 8 8) |> .squares))))
-        ,test "setPieces 1" (assertEqual 64 ((makeBoard 8 8)
-                                          |> setPieces [
-                                                {piece = White, pos=(4,4)}
-                                               ,{piece = Black, pos=(4,5)}
-                                               ,{piece = White, pos=(5,4)}
-                                               ,{piece = Black, pos=(5,5)}]
-                                          |> .squares
-                                          |> List.length))
-        ,test "setPieces 2" (assertEqual 2 ((makeBoard 8 8)
-                                          |> setPieces [
-                                                {piece = White, pos=(4,4)}
-                                               ,{piece = Black, pos=(4,5)}
-                                               ,{piece = White, pos=(5,4)}
-                                               ,{piece = Black, pos=(5,5)}]
+        ,test "setPiece 1" (assertEqual 64 ((makeBoard 8 8)
+                                           |> setPiece {piece = White, pos=(4,4)}
+                                           |> setPiece {piece = White, pos=(5,5)}
+                                           |> setPiece {piece = Black, pos=(4,5)}
+                                           |> setPiece {piece = Black, pos=(5,4)}
+                                           |> .squares
+                                           |> List.length))
+        ,test "setPiece 2" (assertEqual 2 ((makeBoard 8 8)
+                                          |> setPiece {piece = White, pos=(4,4)}
+                                          |> setPiece {piece = White, pos=(5,5)}
+                                          |> setPiece {piece = Black, pos=(4,5)}
+                                          |> setPiece {piece = Black, pos=(5,4)}
                                           |> .squares
                                           |> List.filter (\s -> White == s.piece)
                                           |> List.length))
@@ -42,28 +40,28 @@ all =
         ,test "isOutOfBoard 4" (assertEqual False (isOutOfBoard (makeBoard 8 8) (8,8)))
         ,test "plusPos" (assertEqual (0,0) (plusPos (-2, 10) (2, -10)))
         ,test "getSquare" (assertEqual White (.piece (Maybe.withDefault {piece = None, pos=(99,99)}
-                                                          (getSquare (setPieces [{piece = White, pos=(4,4)}] (makeBoard 8 8)) (4,4)))))
-        ,test "nextSquare" (assertEqual White (.piece (Maybe.withDefault {piece = None, pos=(99,99)}
-                                                          (nextSquare (setPieces [{piece = White, pos=(4,4)}] (makeBoard 8 8)) (-1, 0) (5,4)))))
-        ,test "takeWhile" (assertEqual [1,1,1] (takeWhile (\n -> n == 1) [1,1,1,3,4]))
+                                                          (getSquare (setPiece {piece = White, pos=(4,4)} (makeBoard 8 8)) (4,4)))))
         ,test "reversibleSquares 1" (assertEqual 3 ((makeBoard 8 8)
-                                                   |> setPieces [
-                                                         {piece = White, pos=(2,4)}
-                                                        ,{piece = White, pos=(3,4)}
-                                                        ,{piece = White, pos=(4,4)}
-                                                        ,{piece = Black, pos=(5,4)}
-                                                        ,{piece = Black, pos=(4,5)}
-                                                        ,{piece = Black, pos=(5,5)}]
+                                                   |> setPiece {piece = White, pos=(2,4)}
+                                                   |> setPiece {piece = White, pos=(3,4)}
+                                                   |> setPiece {piece = White, pos=(4,4)}
+                                                   |> setPiece {piece = Black, pos=(5,4)}
                                                    |> reversibleSquares Black (1, 0) (1, 4)
                                                    |> List.length))
         ,test "reversibleSquares 2" (assertEqual 0 ((makeBoard 8 8)
-                                                   |> setPieces [
-                                                         {piece = White, pos=(2,4)}
-                                                        ,{piece = White, pos=(3,4)}
-                                                        ,{piece = White, pos=(4,4)}]
+                                                   |> setPiece {piece = White, pos=(2,4)}
+                                                   |> setPiece {piece = White, pos=(3,4)}
+                                                   |> setPiece {piece = White, pos=(4,4)}
                                                    |> reversibleSquares White (1, 0) (1, 4)
                                                    |> List.length))
         ,test "reversibleSquares 3" (assertEqual 0 ((makeBoard 8 8)
                                                    |> reversibleSquares None (1, 0) (1, 4)
+                                                   |> List.length))
+        ,test "reversibleSquares 4" (assertEqual 0 ((makeBoard 8 8)
+                                                   |> setPiece {piece = White, pos=(5,4)}
+                                                   |> setPiece {piece = White, pos=(6,4)}
+                                                   |> setPiece {piece = White, pos=(7,4)}
+                                                   |> setPiece {piece = White, pos=(8,4)}
+                                                   |> reversibleSquares Black (1, 0) (4, 4)
                                                    |> List.length))
         ]

@@ -55,13 +55,17 @@ makeBoard w h =
         {squares = map2 makeSquare (repeat (length poss) None) poss
         ,board_size = (w, h)}
 
-setPieces : List Square -> Board -> Board
-setPieces l b =
+setPiece : Square -> Board -> Board
+setPiece s b =
     let
-        squares = map (\s -> (filter (\t -> s.pos == t.pos) l) |> head |> Maybe.withDefault s) b.squares
+        squares = map (\t ->
+                           if t.pos == s.pos then
+                               s
+                           else
+                               t
+                      ) b.squares
     in
-        {squares = squares
-        ,board_size = b.board_size}
+        {b | squares = squares}
 
 -- -- 判定関連
 isOutOfBoard : Board -> Pos -> Bool
@@ -86,29 +90,9 @@ getSquare : Board -> Pos -> Maybe Square
 getSquare b p =
     getSquareFromList b.squares p
         
-nextSquare : Board -> Pos -> Pos -> Maybe Square
-nextSquare b direction current_pos =
-    let
-        new_pos = (plusPos direction current_pos)
-    in
-        if (isOutOfBoard b new_pos) then
-            Maybe.Nothing
-        else
-            getSquare b new_pos
-
 multiplyPos : Pos -> Int -> Pos
 multiplyPos p n =
     (((fst p) * n), ((snd p) * n))
-
-takeWhile : (a -> Bool) -> List a -> List a
-takeWhile f l =
-    case l of
-        [] -> []
-        x::xs ->
-            if f x then
-                x :: takeWhile f xs
-            else
-                []
 
 -- currnet_posにpieceを置いた場合のdirection方向の返せるマスをかえす
 reversibleSquares : Piece -> Pos -> Pos -> Board -> List Square
@@ -119,6 +103,7 @@ reversibleSquares piece direction current_pos board =
                           |> map (\n -> multiplyPos direction n)
                           |> map (\p -> plusPos current_pos p)
                           |> filterMap (\p -> getSquare board p)
+        outOfBoardSquares = take 1 (List.reverse direction_squares) |> map (\s -> {s | pos = (plusPos s.pos direction), piece = None})
         takeReversibles l result =
             case l of
                 [] -> result
@@ -131,7 +116,7 @@ reversibleSquares piece direction current_pos board =
                         else
                             result
     in
-        takeReversibles direction_squares []
+        takeReversibles (append direction_squares outOfBoardSquares) []
 
 -- オセロを反転
 reverse : Piece -> Piece
