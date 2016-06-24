@@ -23,12 +23,15 @@ type alias Board =
     , board_size: BoardSize
     }
 
+-- game
+type alias Game =
+    { board: Board
+    , phase: Piece
+    }
+
 -- 盤面
-w = 8
-h = 8
-board = combinationOf (\a -> \b -> {piece = a, pos = b}) [1..w] [1..h]
 directions = combinationOf (\d1 -> \d2 -> (d1, d2)) [-1, 0, 1] [-1, 0, 1]
-             |> filter (\d -> (not (d == (0, 0))))
+           |> filter (\d -> (not (d == (0, 0))))
 
 -- くみあわせ
 combinationOf : (a -> b -> c) -> List a -> List b -> List c
@@ -45,11 +48,11 @@ makeSquare pi po =
     { piece = pi
     , pos = po
     }
-    
+
 makeBoard : Int -> Int -> Board
 makeBoard w h =
     let
-        poss = 
+        poss =
             combinationOf makePos [1..w] [1..h]
     in
         {squares = map2 makeSquare (repeat (length poss) None) poss
@@ -89,7 +92,7 @@ getSquareFromList s p =
 getSquare : Board -> Pos -> Maybe Square
 getSquare b p =
     getSquareFromList b.squares p
-        
+
 multiplyPos : Pos -> Int -> Pos
 multiplyPos p n =
     (((fst p) * n), ((snd p) * n))
@@ -116,12 +119,41 @@ reversibleSquares piece direction current_pos board =
                         else
                             result
     in
-        takeReversibles (append direction_squares outOfBoardSquares) []
+        case getSquare board current_pos of
+            Nothing -> []
+            Just {piece, pos} ->
+                if None /= piece then
+                    []
+                else
+                    takeReversibles (append direction_squares outOfBoardSquares) []
+
+-- (現在そこに置ける座標, そこに置いて返せるマスのリスト)
+candidates : Piece -> Board -> List (Pos, List Square)
+candidates piece board =
+    let
+        pos_dirs = combinationOf (\d -> \p -> (d, p)) directions (map .pos board.squares)
+        isCandidate (d, p) =
+            if [] == (reversibleSquares piece d p board) then
+                Nothing
+            else
+                Just (p, (reversibleSquares piece d p board))
+    in
+        filterMap isCandidate pos_dirs
 
 -- オセロを反転
 reverse : Piece -> Piece
-reverse p = 
+reverse p =
     case p of
         Black -> White
         White -> Black
         None -> None
+
+-- Game
+
+makeGame : Int -> Int -> Game
+makeGame w h = {board = makeBoard w h, phase = Black}
+
+isGameEnd : Game -> Bool
+isGameEnd game =
+    [] == (candidates game.phase game.board)
+    && [] == (candidates (reverse game.phase) game.board)

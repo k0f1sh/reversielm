@@ -64,4 +64,33 @@ all =
                                                    |> setPiece {piece = White, pos=(8,4)}
                                                    |> reversibleSquares Black (1, 0) (4, 4)
                                                    |> List.length))
+        ,test "candidate 1" (assertEqual 4 ((makeBoard 8 8)
+                                           |> setPiece {piece = White, pos=(4,4)}
+                                           |> setPiece {piece = White, pos=(5,5)}
+                                           |> setPiece {piece = Black, pos=(4,5)}
+                                           |> setPiece {piece = Black, pos=(5,4)}
+                                           |> candidates Black
+                                           |> List.length))
+        ,test "candidate 2" (assertEqual (Maybe.Just 3) ((makeBoard 8 8)
+                                                        |> setPiece {piece = Black, pos=(3,4)}
+                                                        |> setPiece {piece = Black, pos=(4,4)}
+                                                        |> setPiece {piece = White, pos=(5,5)}
+                                                        |> setPiece {piece = Black, pos=(4,5)}
+                                                        |> setPiece {piece = Black, pos=(5,4)}
+                                                        |> setPiece {piece = White, pos=(6,4)}
+                                                        |> candidates White
+                                                        |> List.map (\t -> snd t |> List.length)
+                                                        |> List.maximum))
+        ,test "isGameEnd 1" (assertEqual True (isGameEnd {board = ((makeBoard 8 8)
+                                                                |> setPiece {piece = Black, pos=(3,4)}
+                                                                |> setPiece {piece = Black, pos=(4,4)}
+                                                                |> setPiece {piece = Black, pos=(4,5)}
+                                                                |> setPiece {piece = Black, pos=(5,4)})
+                                                       , phase = White}))
+        ,test "isGameEnd 2" (assertEqual False (isGameEnd {board = ((makeBoard 8 8)
+                                                                |> setPiece {piece = White, pos=(3,4)}
+                                                                |> setPiece {piece = Black, pos=(4,4)}
+                                                                |> setPiece {piece = Black, pos=(4,5)}
+                                                                |> setPiece {piece = Black, pos=(5,4)})
+                                                       , phase = Black}))
         ]
