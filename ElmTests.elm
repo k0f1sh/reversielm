@@ -1,12 +1,9 @@
-module Tests where
-
-import ElmTest exposing (..)
-
 import String
 import Reversi exposing (..)
+import ElmTest exposing (..)
 
-all : Test
-all =
+tests : Test
+tests =
     suite "A Test Suite"
         [
          test "Addition" (assertEqual (3 + 7) 10)
@@ -94,3 +91,8 @@ all =
                                                                 |> setPiece {piece = Black, pos=(5,4)})
                                                        , phase = Black}))
         ]
+
+
+main : Program Never
+main =
+    runSuite tests

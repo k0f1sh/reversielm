@@ -1,4 +1,4 @@
-module Reversi where
+module Reversi exposing (..)
 
 import List exposing (..)
 
