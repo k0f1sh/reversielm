@@ -151,7 +151,12 @@ reverse p =
 -- Game
 
 makeGame : Int -> Int -> Game
-makeGame w h = {board = makeBoard w h, phase = Black}
+makeGame w h = {board = ((makeBoard w h)
+                        |> setPiece {piece = White, pos=(4,4)}
+                        |> setPiece {piece = White, pos=(5,5)}
+                        |> setPiece {piece = Black, pos=(4,5)}
+                        |> setPiece {piece = Black, pos=(5,4)})
+               , phase = Black}
 
 isGameEnd : Game -> Bool
 isGameEnd game =
