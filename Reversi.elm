@@ -148,6 +148,41 @@ reverse p =
         White -> Black
         None -> None
 
+reverseSquare : Square -> Board -> Board
+reverseSquare square board =
+    let
+        new_squares =  map (\s -> if s.pos == square.pos then {square | piece = (reverse square.piece)} else s) board.squares
+    in
+        {board | squares = new_squares}
+
+putPiece : Pos -> Game -> Game
+putPiece pos game =
+    case getSquare game.board pos of
+        Maybe.Nothing -> game
+        Just square -> 
+            case square.piece of
+                White -> game
+                Black -> game
+                None ->
+                    let
+                        rs = filter (\ (p, s) -> p == pos) (candidates game.phase game.board)
+                           |> map snd
+                           |> concat
+                        new_game = 
+                            if [] == rs then
+                                game
+                            else
+                                { game | phase = reverse game.phase
+                                , board = (foldr reverseSquare game.board rs)
+                                |> setPiece {piece = game.phase, pos = pos}
+                                }
+                    in
+                        if [] == (candidates new_game.phase new_game.board) then
+                            -- スキップ
+                            {new_game | phase = reverse new_game.phase}
+                        else
+                            new_game
+                                
 -- Game
 
 makeGame : Int -> Int -> Game
