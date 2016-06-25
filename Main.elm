@@ -18,6 +18,8 @@ view game =
     div []
         [ div [] [ Html.text ("手番: " ++ (toString game.phase)) ]
         , div [] [ Html.text ("isGameEnd: " ++ (toString (isGameEnd game))) ]
+        , div [] [ Html.text ("Black: " ++ (toString (List.length (List.filter (\s -> s.piece == Black) game.board.squares)))) ]
+        , div [] [ Html.text ("White: " ++ (toString (List.length (List.filter (\s -> s.piece == White) game.board.squares)))) ]
         , svg
             [width "800", height "800"]
             (List.map (\s -> squareView s) game.board.squares)
@@ -38,7 +40,7 @@ emptyPieceView pos =
          , height "80"
          , fill "#7fff7f"
          , stroke "#222222"
-         , Svg.Events.onClick (BoardClick pos)
+         , Svg.Events.onMouseDown (BoardClick pos)
          ] []
         
         
