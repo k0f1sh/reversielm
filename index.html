@@ -7239,14 +7239,6 @@ var _user$project$ReversiDictVer$directionLinePositions = F3(
 				},
 				_elm_lang$core$Native_List.range(1, max_length)));
 	});
-var _user$project$ReversiDictVer$setPiece = F3(
-	function (piece, position, board) {
-		return _elm_lang$core$Native_Utils.update(
-			board,
-			{
-				pieces: A3(_elm_lang$core$Dict$insert, position, piece, board.pieces)
-			});
-	});
 var _user$project$ReversiDictVer$isOutOfBoard = F2(
 	function (board, pos) {
 		return ((_elm_lang$core$Native_Utils.cmp(
@@ -7258,6 +7250,14 @@ var _user$project$ReversiDictVer$isOutOfBoard = F2(
 			1) < 0) || (_elm_lang$core$Native_Utils.cmp(
 			_elm_lang$core$Basics$snd(board.board_size),
 			_elm_lang$core$Basics$snd(pos)) < 0));
+	});
+var _user$project$ReversiDictVer$setPiece = F3(
+	function (piece, position, board) {
+		return A2(_user$project$ReversiDictVer$isOutOfBoard, board, position) ? board : _elm_lang$core$Native_Utils.update(
+			board,
+			{
+				pieces: A3(_elm_lang$core$Dict$insert, position, piece, board.pieces)
+			});
 	});
 var _user$project$ReversiDictVer$emptyBoard = F2(
 	function (w, h) {
@@ -7540,13 +7540,47 @@ var _user$project$Main$pieceView = F3(
 						[]))
 				]));
 	});
-var _user$project$Main$squareView = F2(
-	function (position, board) {
-		var _p2 = A2(_elm_lang$core$Dict$get, position, board.pieces);
-		if (_p2.ctor === 'Nothing') {
-			return _user$project$Main$emptyPieceView(position);
+var _user$project$Main$candidateView = function (position) {
+	return A2(
+		_elm_lang$svg$Svg$rect,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$svg$Svg_Attributes$x(
+				_elm_lang$core$Basics$toString(
+					(_elm_lang$core$Basics$fst(position) - 1) * 80)),
+				_elm_lang$svg$Svg_Attributes$y(
+				_elm_lang$core$Basics$toString(
+					(_elm_lang$core$Basics$snd(position) - 1) * 80)),
+				_elm_lang$svg$Svg_Attributes$width('80'),
+				_elm_lang$svg$Svg_Attributes$height('80'),
+				_elm_lang$svg$Svg_Attributes$fill('#81F7BE'),
+				_elm_lang$svg$Svg_Attributes$stroke('#222222'),
+				_elm_lang$svg$Svg_Events$onMouseDown(
+				_user$project$Main$BoardClick(position))
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[]));
+};
+var _user$project$Main$emptyView = F3(
+	function (piece, position, board) {
+		return A2(
+			_elm_lang$core$List$member,
+			position,
+			A2(
+				_elm_lang$core$List$map,
+				function (_p2) {
+					var _p3 = _p2;
+					return _p3._0;
+				},
+				A2(_user$project$ReversiDictVer$candidates, piece, board))) ? _user$project$Main$candidateView(position) : _user$project$Main$emptyPieceView(position);
+	});
+var _user$project$Main$squareView = F3(
+	function (piece, position, board) {
+		var _p4 = A2(_elm_lang$core$Dict$get, position, board.pieces);
+		if (_p4.ctor === 'Nothing') {
+			return A3(_user$project$Main$emptyView, piece, position, board);
 		} else {
-			if (_p2._0.ctor === 'White') {
+			if (_p4._0.ctor === 'White') {
 				return A3(_user$project$Main$pieceView, _user$project$ReversiDictVer$White, position, '#fcfcfc');
 			} else {
 				return A3(_user$project$Main$pieceView, _user$project$ReversiDictVer$Black, position, '#3c3c3c');
@@ -7633,7 +7667,7 @@ var _user$project$Main$view = function (game) {
 				A2(
 					_elm_lang$core$List$map,
 					function (position) {
-						return A2(_user$project$Main$squareView, position, game.board);
+						return A3(_user$project$Main$squareView, game.phase, position, game.board);
 					},
 					A3(
 						_user$project$ReversiDictVer$combinationOf,

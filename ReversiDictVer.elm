@@ -52,7 +52,10 @@ isOutOfBoard board pos =
 
 setPiece : Piece -> Position -> Board -> Board
 setPiece piece position board =
-    {board | pieces = Dict.insert position piece board.pieces}
+    if isOutOfBoard board position then
+        board
+    else
+        {board | pieces = Dict.insert position piece board.pieces}
 
 
 directionLinePositions : Position -> Position -> Board -> List Position
