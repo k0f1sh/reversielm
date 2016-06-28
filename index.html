@@ -7212,79 +7212,61 @@ var _elm_lang$svg$Svg_Events$onMouseMove = _elm_lang$svg$Svg_Events$simpleOn('mo
 var _elm_lang$svg$Svg_Events$onMouseOut = _elm_lang$svg$Svg_Events$simpleOn('mouseout');
 var _elm_lang$svg$Svg_Events$onMouseOver = _elm_lang$svg$Svg_Events$simpleOn('mouseover');
 var _elm_lang$svg$Svg_Events$onMouseUp = _elm_lang$svg$Svg_Events$simpleOn('mouseup');
-var _user$project$Reversi$multiplyPos = F2(
-	function (p, n) {
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Basics$fst(p) * n,
-			_1: _elm_lang$core$Basics$snd(p) * n
-		};
-	});
-var _user$project$Reversi$getSquareFromList = F2(
-	function (s, p) {
-		getSquareFromList:
-		while (true) {
-			var _p0 = s;
-			if (_p0.ctor === '[]') {
-				return _elm_lang$core$Maybe$Nothing;
-			} else {
-				var _p1 = _p0._0;
-				if (_elm_lang$core$Native_Utils.eq(_p1.pos, p)) {
-					return _elm_lang$core$Maybe$Just(_p1);
-				} else {
-					var _v1 = _p0._1,
-						_v2 = p;
-					s = _v1;
-					p = _v2;
-					continue getSquareFromList;
-				}
-			}
-		}
-	});
-var _user$project$Reversi$getSquare = F2(
-	function (b, p) {
-		return A2(_user$project$Reversi$getSquareFromList, b.squares, p);
-	});
-var _user$project$Reversi$plusPos = F2(
-	function (pos1, pos2) {
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Basics$fst(pos1) + _elm_lang$core$Basics$fst(pos2),
-			_1: _elm_lang$core$Basics$snd(pos1) + _elm_lang$core$Basics$snd(pos2)
-		};
-	});
-var _user$project$Reversi$isOutOfBoard = F2(
-	function (board, pos) {
-		var bound = function (f) {
-			return (_elm_lang$core$Native_Utils.cmp(
-				f(pos),
-				1) < 0) || (_elm_lang$core$Native_Utils.cmp(
-				f(board.board_size),
-				f(pos)) < 0);
-		};
-		return bound(_elm_lang$core$Basics$fst) || bound(_elm_lang$core$Basics$snd);
-	});
-var _user$project$Reversi$setPiece = F2(
-	function (s, b) {
-		var squares = A2(
+var _user$project$ReversiDictVer$directionLinePositions = F3(
+	function (direction, current, board) {
+		var max_length = A2(
+			_elm_lang$core$Basics$max,
+			_elm_lang$core$Basics$fst(board.board_size),
+			_elm_lang$core$Basics$snd(board.board_size));
+		return A2(
 			_elm_lang$core$List$map,
-			function (t) {
-				return _elm_lang$core$Native_Utils.eq(t.pos, s.pos) ? s : t;
+			function (_p0) {
+				var _p1 = _p0;
+				return {
+					ctor: '_Tuple2',
+					_0: _p1._0 + _elm_lang$core$Basics$fst(current),
+					_1: _p1._1 + _elm_lang$core$Basics$snd(current)
+				};
 			},
-			b.squares);
+			A2(
+				_elm_lang$core$List$map,
+				function (n) {
+					return {
+						ctor: '_Tuple2',
+						_0: n * _elm_lang$core$Basics$fst(direction),
+						_1: n * _elm_lang$core$Basics$snd(direction)
+					};
+				},
+				_elm_lang$core$Native_List.range(1, max_length)));
+	});
+var _user$project$ReversiDictVer$setPiece = F3(
+	function (piece, position, board) {
 		return _elm_lang$core$Native_Utils.update(
-			b,
-			{squares: squares});
+			board,
+			{
+				pieces: A3(_elm_lang$core$Dict$insert, position, piece, board.pieces)
+			});
 	});
-var _user$project$Reversi$makeSquare = F2(
-	function (pi, po) {
-		return {piece: pi, pos: po};
+var _user$project$ReversiDictVer$isOutOfBoard = F2(
+	function (board, pos) {
+		return ((_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$fst(pos),
+			1) < 0) || (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$fst(board.board_size),
+			_elm_lang$core$Basics$fst(pos)) < 0)) || ((_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$snd(pos),
+			1) < 0) || (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$snd(board.board_size),
+			_elm_lang$core$Basics$snd(pos)) < 0));
 	});
-var _user$project$Reversi$makePos = F2(
-	function (n, m) {
-		return {ctor: '_Tuple2', _0: n, _1: m};
+var _user$project$ReversiDictVer$emptyBoard = F2(
+	function (w, h) {
+		return {
+			pieces: _elm_lang$core$Dict$empty,
+			board_size: {ctor: '_Tuple2', _0: w, _1: h}
+		};
 	});
-var _user$project$Reversi$combinationOf = F3(
+var _user$project$ReversiDictVer$combinationOf = F3(
 	function (f, a, b) {
 		return _elm_lang$core$List$concat(
 			A2(
@@ -7299,7 +7281,7 @@ var _user$project$Reversi$combinationOf = F3(
 				},
 				a));
 	});
-var _user$project$Reversi$directions = A2(
+var _user$project$ReversiDictVer$directions = A2(
 	_elm_lang$core$List$filter,
 	function (d) {
 		return _elm_lang$core$Basics$not(
@@ -7308,7 +7290,7 @@ var _user$project$Reversi$directions = A2(
 				{ctor: '_Tuple2', _0: 0, _1: 0}));
 	},
 	A3(
-		_user$project$Reversi$combinationOf,
+		_user$project$ReversiDictVer$combinationOf,
 		F2(
 			function (d1, d2) {
 				return {ctor: '_Tuple2', _0: d1, _1: d2};
@@ -7317,73 +7299,47 @@ var _user$project$Reversi$directions = A2(
 			[-1, 0, 1]),
 		_elm_lang$core$Native_List.fromArray(
 			[-1, 0, 1])));
-var _user$project$Reversi$Square = F2(
+var _user$project$ReversiDictVer$Board = F2(
 	function (a, b) {
-		return {piece: a, pos: b};
+		return {pieces: a, board_size: b};
 	});
-var _user$project$Reversi$Board = F2(
-	function (a, b) {
-		return {squares: a, board_size: b};
-	});
-var _user$project$Reversi$Game = F2(
+var _user$project$ReversiDictVer$Game = F2(
 	function (a, b) {
 		return {board: a, phase: b};
 	});
-var _user$project$Reversi$None = {ctor: 'None'};
-var _user$project$Reversi$makeBoard = F2(
-	function (w, h) {
-		var poss = A3(
-			_user$project$Reversi$combinationOf,
-			_user$project$Reversi$makePos,
-			_elm_lang$core$Native_List.range(1, w),
-			_elm_lang$core$Native_List.range(1, h));
-		return {
-			squares: A3(
-				_elm_lang$core$List$map2,
-				_user$project$Reversi$makeSquare,
-				A2(
-					_elm_lang$core$List$repeat,
-					_elm_lang$core$List$length(poss),
-					_user$project$Reversi$None),
-				poss),
-			board_size: {ctor: '_Tuple2', _0: w, _1: h}
-		};
-	});
-var _user$project$Reversi$White = {ctor: 'White'};
-var _user$project$Reversi$Black = {ctor: 'Black'};
-var _user$project$Reversi$reverse = function (p) {
+var _user$project$ReversiDictVer$White = {ctor: 'White'};
+var _user$project$ReversiDictVer$Black = {ctor: 'Black'};
+var _user$project$ReversiDictVer$reverse = function (p) {
 	var _p2 = p;
-	switch (_p2.ctor) {
-		case 'Black':
-			return _user$project$Reversi$White;
-		case 'White':
-			return _user$project$Reversi$Black;
-		default:
-			return _user$project$Reversi$None;
+	if (_p2.ctor === 'Black') {
+		return _user$project$ReversiDictVer$White;
+	} else {
+		return _user$project$ReversiDictVer$Black;
 	}
 };
-var _user$project$Reversi$reversibleSquares = F4(
-	function (piece, direction, current_pos, board) {
+var _user$project$ReversiDictVer$reversiblePositions = F4(
+	function (piece, direction, current, board) {
 		var takeReversibles = F2(
-			function (l, result) {
+			function (positions, result) {
 				takeReversibles:
 				while (true) {
-					var _p3 = l;
+					var _p3 = positions;
 					if (_p3.ctor === '[]') {
 						return result;
 					} else {
-						var _p4 = _p3._0;
-						if (_elm_lang$core$Native_Utils.eq(_p4.piece, _user$project$Reversi$None)) {
+						var _p5 = _p3._0;
+						var _p4 = A2(_elm_lang$core$Dict$get, _p5, board.pieces);
+						if (_p4.ctor === 'Nothing') {
 							return _elm_lang$core$Native_List.fromArray(
 								[]);
 						} else {
 							if (_elm_lang$core$Native_Utils.eq(
-								_p4.piece,
-								_user$project$Reversi$reverse(piece))) {
-								var _v5 = _p3._1,
-									_v6 = A2(_elm_lang$core$List_ops['::'], _p4, result);
-								l = _v5;
-								result = _v6;
+								_p4._0,
+								_user$project$ReversiDictVer$reverse(piece))) {
+								var _v4 = _p3._1,
+									_v5 = A2(_elm_lang$core$List_ops['::'], _p5, result);
+								positions = _v4;
+								result = _v5;
 								continue takeReversibles;
 							} else {
 								return result;
@@ -7392,238 +7348,191 @@ var _user$project$Reversi$reversibleSquares = F4(
 					}
 				}
 			});
-		var max_length = A2(
-			_elm_lang$core$Basics$max,
-			_elm_lang$core$Basics$fst(board.board_size),
-			_elm_lang$core$Basics$snd(board.board_size));
-		var direction_squares = A2(
-			_elm_lang$core$List$filterMap,
-			function (p) {
-				return A2(_user$project$Reversi$getSquare, board, p);
-			},
-			A2(
-				_elm_lang$core$List$map,
-				function (p) {
-					return A2(_user$project$Reversi$plusPos, current_pos, p);
-				},
-				A2(
-					_elm_lang$core$List$map,
-					function (n) {
-						return A2(_user$project$Reversi$multiplyPos, direction, n);
-					},
-					_elm_lang$core$Native_List.range(1, max_length))));
-		var outOfBoardSquares = A2(
-			_elm_lang$core$List$map,
-			function (s) {
-				return _elm_lang$core$Native_Utils.update(
-					s,
-					{
-						pos: A2(_user$project$Reversi$plusPos, s.pos, direction),
-						piece: _user$project$Reversi$None
-					});
-			},
-			A2(
-				_elm_lang$core$List$take,
-				1,
-				_elm_lang$core$List$reverse(direction_squares)));
-		var _p5 = A2(_user$project$Reversi$getSquare, board, current_pos);
-		if (_p5.ctor === 'Nothing') {
-			return _elm_lang$core$Native_List.fromArray(
-				[]);
-		} else {
-			return (!_elm_lang$core$Native_Utils.eq(_user$project$Reversi$None, _p5._0.piece)) ? _elm_lang$core$Native_List.fromArray(
-				[]) : A2(
+		var _p6 = A2(_elm_lang$core$Dict$get, current, board.pieces);
+		if (_p6.ctor === 'Nothing') {
+			return A2(
 				takeReversibles,
-				A2(_elm_lang$core$List$append, direction_squares, outOfBoardSquares),
+				A3(_user$project$ReversiDictVer$directionLinePositions, direction, current, board),
 				_elm_lang$core$Native_List.fromArray(
 					[]));
+		} else {
+			return _elm_lang$core$Native_List.fromArray(
+				[]);
 		}
 	});
-var _user$project$Reversi$candidates = F2(
+var _user$project$ReversiDictVer$candidates = F2(
 	function (piece, board) {
-		var isCandidate = function (_p6) {
-			var _p7 = _p6;
-			var _p9 = _p7._1;
-			var _p8 = _p7._0;
+		var isCandidate = function (_p7) {
+			var _p8 = _p7;
+			var _p9 = _p8._1;
+			var rs = A4(_user$project$ReversiDictVer$reversiblePositions, piece, _p8._0, _p9, board);
 			return _elm_lang$core$Native_Utils.eq(
 				_elm_lang$core$Native_List.fromArray(
 					[]),
-				A4(_user$project$Reversi$reversibleSquares, piece, _p8, _p9, board)) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(
-				{
-					ctor: '_Tuple2',
-					_0: _p9,
-					_1: A4(_user$project$Reversi$reversibleSquares, piece, _p8, _p9, board)
-				});
+				rs) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(
+				{ctor: '_Tuple2', _0: _p9, _1: rs});
 		};
 		var pos_dirs = A3(
-			_user$project$Reversi$combinationOf,
+			_user$project$ReversiDictVer$combinationOf,
 			F2(
 				function (d, p) {
 					return {ctor: '_Tuple2', _0: d, _1: p};
 				}),
-			_user$project$Reversi$directions,
-			A2(
-				_elm_lang$core$List$map,
-				function (_) {
-					return _.pos;
-				},
-				board.squares));
+			_user$project$ReversiDictVer$directions,
+			A3(
+				_user$project$ReversiDictVer$combinationOf,
+				F2(
+					function (w, h) {
+						return {ctor: '_Tuple2', _0: w, _1: h};
+					}),
+				_elm_lang$core$Native_List.range(
+					1,
+					_elm_lang$core$Basics$fst(board.board_size)),
+				_elm_lang$core$Native_List.range(
+					1,
+					_elm_lang$core$Basics$snd(board.board_size))));
 		return A2(_elm_lang$core$List$filterMap, isCandidate, pos_dirs);
 	});
-var _user$project$Reversi$reverseSquare = F2(
-	function (square, board) {
-		var new_squares = A2(
-			_elm_lang$core$List$map,
-			function (s) {
-				return _elm_lang$core$Native_Utils.eq(s.pos, square.pos) ? _elm_lang$core$Native_Utils.update(
-					square,
-					{
-						piece: _user$project$Reversi$reverse(square.piece)
-					}) : s;
-			},
-			board.squares);
-		return _elm_lang$core$Native_Utils.update(
-			board,
-			{squares: new_squares});
-	});
-var _user$project$Reversi$putPiece = F2(
-	function (pos, game) {
-		var _p10 = A2(_user$project$Reversi$getSquare, game.board, pos);
+var _user$project$ReversiDictVer$reversePiece = F2(
+	function (position, board) {
+		var _p10 = A2(_elm_lang$core$Dict$get, position, board.pieces);
 		if (_p10.ctor === 'Nothing') {
-			return game;
+			return board;
 		} else {
-			var _p11 = _p10._0.piece;
-			switch (_p11.ctor) {
-				case 'White':
-					return game;
-				case 'Black':
-					return game;
-				default:
-					var rs = _elm_lang$core$List$concat(
-						A2(
-							_elm_lang$core$List$map,
-							_elm_lang$core$Basics$snd,
-							A2(
-								_elm_lang$core$List$filter,
-								function (_p12) {
-									var _p13 = _p12;
-									return _elm_lang$core$Native_Utils.eq(_p13._0, pos);
-								},
-								A2(_user$project$Reversi$candidates, game.phase, game.board))));
-					var new_game = _elm_lang$core$Native_Utils.eq(
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						rs) ? game : _elm_lang$core$Native_Utils.update(
-						game,
-						{
-							phase: _user$project$Reversi$reverse(game.phase),
-							board: A2(
-								_user$project$Reversi$setPiece,
-								{piece: game.phase, pos: pos},
-								A3(_elm_lang$core$List$foldr, _user$project$Reversi$reverseSquare, game.board, rs))
-						});
-					return _elm_lang$core$Native_Utils.eq(
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						A2(_user$project$Reversi$candidates, new_game.phase, new_game.board)) ? _elm_lang$core$Native_Utils.update(
-						new_game,
-						{
-							phase: _user$project$Reversi$reverse(new_game.phase)
-						}) : new_game;
-			}
+			return _elm_lang$core$Native_Utils.update(
+				board,
+				{
+					pieces: A3(
+						_elm_lang$core$Dict$insert,
+						position,
+						_user$project$ReversiDictVer$reverse(_p10._0),
+						board.pieces)
+				});
 		}
 	});
-var _user$project$Reversi$isGameEnd = function (game) {
+var _user$project$ReversiDictVer$putPiece = F2(
+	function (position, game) {
+		var _p11 = A2(_elm_lang$core$Dict$get, position, game.board.pieces);
+		if (_p11.ctor === 'Nothing') {
+			var rs = _elm_lang$core$List$concat(
+				A2(
+					_elm_lang$core$List$map,
+					_elm_lang$core$Basics$snd,
+					A2(
+						_elm_lang$core$List$filter,
+						function (_p12) {
+							var _p13 = _p12;
+							return _elm_lang$core$Native_Utils.eq(_p13._0, position);
+						},
+						A2(_user$project$ReversiDictVer$candidates, game.phase, game.board))));
+			var new_game = _elm_lang$core$Native_Utils.eq(
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				rs) ? game : _elm_lang$core$Native_Utils.update(
+				game,
+				{
+					phase: _user$project$ReversiDictVer$reverse(game.phase),
+					board: A3(
+						_user$project$ReversiDictVer$setPiece,
+						game.phase,
+						position,
+						A3(_elm_lang$core$List$foldr, _user$project$ReversiDictVer$reversePiece, game.board, rs))
+				});
+			return _elm_lang$core$Native_Utils.eq(
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				A2(_user$project$ReversiDictVer$candidates, new_game.phase, new_game.board)) ? _elm_lang$core$Native_Utils.update(
+				new_game,
+				{
+					phase: _user$project$ReversiDictVer$reverse(new_game.phase)
+				}) : new_game;
+		} else {
+			return game;
+		}
+	});
+var _user$project$ReversiDictVer$isGameEnd = function (game) {
 	return _elm_lang$core$Native_Utils.eq(
 		_elm_lang$core$Native_List.fromArray(
 			[]),
-		A2(_user$project$Reversi$candidates, game.phase, game.board)) && _elm_lang$core$Native_Utils.eq(
+		A2(_user$project$ReversiDictVer$candidates, game.phase, game.board)) && _elm_lang$core$Native_Utils.eq(
 		_elm_lang$core$Native_List.fromArray(
 			[]),
 		A2(
-			_user$project$Reversi$candidates,
-			_user$project$Reversi$reverse(game.phase),
+			_user$project$ReversiDictVer$candidates,
+			_user$project$ReversiDictVer$reverse(game.phase),
 			game.board));
 };
-var _user$project$Reversi$makeGame = F2(
+var _user$project$ReversiDictVer$emptyGame = F2(
 	function (w, h) {
 		return {
-			board: A2(
-				_user$project$Reversi$setPiece,
-				{
-					piece: _user$project$Reversi$Black,
-					pos: {ctor: '_Tuple2', _0: 5, _1: 4}
-				},
-				A2(
-					_user$project$Reversi$setPiece,
-					{
-						piece: _user$project$Reversi$Black,
-						pos: {ctor: '_Tuple2', _0: 4, _1: 5}
-					},
-					A2(
-						_user$project$Reversi$setPiece,
-						{
-							piece: _user$project$Reversi$White,
-							pos: {ctor: '_Tuple2', _0: 5, _1: 5}
-						},
-						A2(
-							_user$project$Reversi$setPiece,
-							{
-								piece: _user$project$Reversi$White,
-								pos: {ctor: '_Tuple2', _0: 4, _1: 4}
-							},
-							A2(_user$project$Reversi$makeBoard, w, h))))),
-			phase: _user$project$Reversi$Black
+			board: A3(
+				_user$project$ReversiDictVer$setPiece,
+				_user$project$ReversiDictVer$Black,
+				{ctor: '_Tuple2', _0: 5, _1: 4},
+				A3(
+					_user$project$ReversiDictVer$setPiece,
+					_user$project$ReversiDictVer$Black,
+					{ctor: '_Tuple2', _0: 4, _1: 5},
+					A3(
+						_user$project$ReversiDictVer$setPiece,
+						_user$project$ReversiDictVer$White,
+						{ctor: '_Tuple2', _0: 5, _1: 5},
+						A3(
+							_user$project$ReversiDictVer$setPiece,
+							_user$project$ReversiDictVer$White,
+							{ctor: '_Tuple2', _0: 4, _1: 4},
+							A2(_user$project$ReversiDictVer$emptyBoard, w, h))))),
+			phase: _user$project$ReversiDictVer$Black
 		};
 	});
 var _user$project$Main$update = F2(
 	function (_p0, game) {
 		var _p1 = _p0;
-		return A2(_user$project$Reversi$putPiece, _p1._0, game);
+		return A2(_user$project$ReversiDictVer$putPiece, _p1._0, game);
 	});
 var _user$project$Main$BoardClick = function (a) {
 	return {ctor: 'BoardClick', _0: a};
 };
-var _user$project$Main$emptyPieceView = function (pos) {
+var _user$project$Main$emptyPieceView = function (position) {
 	return A2(
 		_elm_lang$svg$Svg$rect,
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_elm_lang$svg$Svg_Attributes$x(
 				_elm_lang$core$Basics$toString(
-					(_elm_lang$core$Basics$fst(pos) - 1) * 80)),
+					(_elm_lang$core$Basics$fst(position) - 1) * 80)),
 				_elm_lang$svg$Svg_Attributes$y(
 				_elm_lang$core$Basics$toString(
-					(_elm_lang$core$Basics$snd(pos) - 1) * 80)),
+					(_elm_lang$core$Basics$snd(position) - 1) * 80)),
 				_elm_lang$svg$Svg_Attributes$width('80'),
 				_elm_lang$svg$Svg_Attributes$height('80'),
 				_elm_lang$svg$Svg_Attributes$fill('#7fff7f'),
 				_elm_lang$svg$Svg_Attributes$stroke('#222222'),
 				_elm_lang$svg$Svg_Events$onMouseDown(
-				_user$project$Main$BoardClick(pos))
+				_user$project$Main$BoardClick(position))
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[]));
 };
 var _user$project$Main$pieceView = F3(
-	function (piece, pos, fill_color) {
+	function (piece, position, fill_color) {
 		return A2(
 			_elm_lang$svg$Svg$g,
 			_elm_lang$core$Native_List.fromArray(
 				[]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_user$project$Main$emptyPieceView(pos),
+					_user$project$Main$emptyPieceView(position),
 					A2(
 					_elm_lang$svg$Svg$circle,
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$svg$Svg_Attributes$cx(
 							_elm_lang$core$Basics$toString(
-								(_elm_lang$core$Basics$fst(pos) * 80) - 40)),
+								(_elm_lang$core$Basics$fst(position) * 80) - 40)),
 							_elm_lang$svg$Svg_Attributes$cy(
 							_elm_lang$core$Basics$toString(
-								(_elm_lang$core$Basics$snd(pos) * 80) - 40)),
+								(_elm_lang$core$Basics$snd(position) * 80) - 40)),
 							_elm_lang$svg$Svg_Attributes$r('35'),
 							_elm_lang$svg$Svg_Attributes$fill(fill_color)
 						]),
@@ -7631,17 +7540,19 @@ var _user$project$Main$pieceView = F3(
 						[]))
 				]));
 	});
-var _user$project$Main$squareView = function (square) {
-	var _p2 = square.piece;
-	switch (_p2.ctor) {
-		case 'White':
-			return A3(_user$project$Main$pieceView, square.piece, square.pos, '#fcfcfc');
-		case 'Black':
-			return A3(_user$project$Main$pieceView, square.piece, square.pos, '#3c3c3c');
-		default:
-			return _user$project$Main$emptyPieceView(square.pos);
-	}
-};
+var _user$project$Main$squareView = F2(
+	function (position, board) {
+		var _p2 = A2(_elm_lang$core$Dict$get, position, board.pieces);
+		if (_p2.ctor === 'Nothing') {
+			return _user$project$Main$emptyPieceView(position);
+		} else {
+			if (_p2._0.ctor === 'White') {
+				return A3(_user$project$Main$pieceView, _user$project$ReversiDictVer$White, position, '#fcfcfc');
+			} else {
+				return A3(_user$project$Main$pieceView, _user$project$ReversiDictVer$Black, position, '#3c3c3c');
+			}
+		}
+	});
 var _user$project$Main$view = function (game) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -7672,7 +7583,7 @@ var _user$project$Main$view = function (game) {
 							_elm_lang$core$Basics_ops['++'],
 							'isGameEnd: ',
 							_elm_lang$core$Basics$toString(
-								_user$project$Reversi$isGameEnd(game))))
+								_user$project$ReversiDictVer$isGameEnd(game))))
 					])),
 				A2(
 				_elm_lang$html$Html$div,
@@ -7688,10 +7599,10 @@ var _user$project$Main$view = function (game) {
 								_elm_lang$core$List$length(
 									A2(
 										_elm_lang$core$List$filter,
-										function (s) {
-											return _elm_lang$core$Native_Utils.eq(s.piece, _user$project$Reversi$Black);
+										function (p) {
+											return _elm_lang$core$Native_Utils.eq(_user$project$ReversiDictVer$Black, p);
 										},
-										game.board.squares)))))
+										_elm_lang$core$Dict$values(game.board.pieces))))))
 					])),
 				A2(
 				_elm_lang$html$Html$div,
@@ -7707,10 +7618,10 @@ var _user$project$Main$view = function (game) {
 								_elm_lang$core$List$length(
 									A2(
 										_elm_lang$core$List$filter,
-										function (s) {
-											return _elm_lang$core$Native_Utils.eq(s.piece, _user$project$Reversi$White);
+										function (p) {
+											return _elm_lang$core$Native_Utils.eq(_user$project$ReversiDictVer$White, p);
 										},
-										game.board.squares)))))
+										_elm_lang$core$Dict$values(game.board.pieces))))))
 					])),
 				A2(
 				_elm_lang$svg$Svg$svg,
@@ -7721,16 +7632,27 @@ var _user$project$Main$view = function (game) {
 					]),
 				A2(
 					_elm_lang$core$List$map,
-					function (s) {
-						return _user$project$Main$squareView(s);
+					function (position) {
+						return A2(_user$project$Main$squareView, position, game.board);
 					},
-					game.board.squares))
+					A3(
+						_user$project$ReversiDictVer$combinationOf,
+						F2(
+							function (w, h) {
+								return {ctor: '_Tuple2', _0: w, _1: h};
+							}),
+						_elm_lang$core$Native_List.range(
+							1,
+							_elm_lang$core$Basics$fst(game.board.board_size)),
+						_elm_lang$core$Native_List.range(
+							1,
+							_elm_lang$core$Basics$snd(game.board.board_size)))))
 			]));
 };
 var _user$project$Main$main = {
 	main: _elm_lang$html$Html_App$beginnerProgram(
 		{
-			model: A2(_user$project$Reversi$makeGame, 8, 8),
+			model: A2(_user$project$ReversiDictVer$emptyGame, 8, 8),
 			view: _user$project$Main$view,
 			update: _user$project$Main$update
 		})

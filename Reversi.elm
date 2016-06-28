@@ -133,10 +133,13 @@ candidates piece board =
     let
         pos_dirs = combinationOf (\d -> \p -> (d, p)) directions (map .pos board.squares)
         isCandidate (d, p) =
-            if [] == (reversibleSquares piece d p board) then
-                Nothing
-            else
-                Just (p, (reversibleSquares piece d p board))
+            let
+                rs = (reversibleSquares piece d p board)
+            in
+                if [] == rs then
+                    Nothing
+                else
+                    Just (p, rs)
     in
         filterMap isCandidate pos_dirs
 

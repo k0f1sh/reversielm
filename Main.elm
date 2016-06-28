@@ -4,55 +4,59 @@ import Html.Events exposing (onClick)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
-import Reversi exposing (..)
+import ReversiDictVer exposing (..)
+import Dict
 
 main = 
-    beginnerProgram { model = makeGame 8 8
+    beginnerProgram { model = emptyGame 8 8
                     , view = view
                     , update = update}
 
-type Msg = BoardClick Pos
+type Msg = BoardClick Position
 
 
 view game = 
     div []
         [ div [] [ Html.text ("手番: " ++ (toString game.phase)) ]
         , div [] [ Html.text ("isGameEnd: " ++ (toString (isGameEnd game))) ]
-        , div [] [ Html.text ("Black: " ++ (toString (List.length (List.filter (\s -> s.piece == Black) game.board.squares)))) ]
-        , div [] [ Html.text ("White: " ++ (toString (List.length (List.filter (\s -> s.piece == White) game.board.squares)))) ]
+        , div [] [ Html.text ("Black: " ++ (toString ((Dict.values game.board.pieces) |> List.filter (\p -> Black == p) |> List.length))) ]
+        , div [] [ Html.text ("White: " ++ (toString ((Dict.values game.board.pieces) |> List.filter (\p -> White == p) |> List.length))) ]
         , svg
             [width "800", height "800"]
-            (List.map (\s -> squareView s) game.board.squares)
+            (List.map (\position -> squareView position game.board) (combinationOf (\w -> \h -> (w, h)) [1..(fst game.board.board_size)] [1..(snd game.board.board_size)]))
         ]
 
-squareView : Square -> Svg Msg
-squareView square =
-    case square.piece of
-        White -> pieceView square.piece square.pos "#fcfcfc"
-        Black -> pieceView square.piece square.pos "#3c3c3c"
-        None -> emptyPieceView square.pos
+squareView : Position -> Board -> Svg Msg
+squareView position board =
+    case Dict.get position board.pieces of
+        Maybe.Nothing ->
+            emptyPieceView position
+        Maybe.Just White ->
+            pieceView White position "#fcfcfc"
+        Maybe.Just Black ->
+            pieceView Black position "#3c3c3c"
 
-emptyPieceView : Pos -> Svg Msg
-emptyPieceView pos =
-    rect [ x (toString (((fst pos) - 1) * 80))
-         , y (toString (((snd pos) - 1) * 80))
+emptyPieceView : Position -> Svg Msg
+emptyPieceView position =
+    rect [ x (toString (((fst position) - 1) * 80))
+         , y (toString (((snd position) - 1) * 80))
          , width "80"
          , height "80"
          , fill "#7fff7f"
          , stroke "#222222"
-         , Svg.Events.onMouseDown (BoardClick pos)
+         , Svg.Events.onMouseDown (BoardClick position)
          ] []
         
         
-pieceView : Piece -> Pos -> String -> Svg Msg
-pieceView piece pos fill_color =
-    g [] [ emptyPieceView pos
-         , circle [ cx (toString (((fst pos) * 80) - 40))
-                 , cy (toString (((snd pos) * 80) - 40))
+pieceView : Piece -> Position -> String -> Svg Msg
+pieceView piece position fill_color =
+    g [] [ emptyPieceView position
+         , circle [ cx (toString (((fst position) * 80) - 40))
+                 , cy (toString (((snd position) * 80) - 40))
                  , r "35"
                  , fill fill_color
                  ] []
         ]
         
-update (BoardClick pos) game = 
-    putPiece pos game
+update (BoardClick position) game = 
+    putPiece position game
